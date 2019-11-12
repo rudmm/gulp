@@ -10,6 +10,7 @@ const htmlMin = require('gulp-htmlmin');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
 const imagemin = require('gulp-imagemin');
+const imageResize = require('gulp-image-resize');
 
 gulp.task('clean', () => {
     return del(['build/*'])
@@ -61,9 +62,12 @@ gulp.task('html', () => {
 });
 
 gulp.task('img-compress', () => {
-   return gulp.src('./src/img/**')
-       .pipe(imagemin({
-           progressive: true
+   return gulp.src('./src/img/**.{png,jpg}')
+       .pipe(imageResize({
+           width : '50%',
+           height : '50%',
+           crop : true,
+           upscale : false
        }))
        .pipe(gulp.dest('./build/img/'))
 });
