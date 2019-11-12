@@ -7,11 +7,16 @@ const del = require('del');
 const browserSync = require('browser-sync').create();
 const rigger = require('gulp-rigger');
 const htmlMin = require('gulp-htmlmin');
+const sourcemaps = require('gulp-sourcemaps');
+const sass = require('gulp-sass');
 
 const styles = () => {
-    return gulp.src('./src/styles/**/*.css')
-        .pipe(concat('style.css'))
+    return gulp.src('./src/styles/**/*.scss')
+        .pipe(sourcemaps.init())
+        .pipe(sass())
         .pipe(autoprefixer())
+        .pipe(sourcemaps.write())
+        .pipe(concat('style.css'))
         .pipe(cleanCSS({
             level: 2
         }))
@@ -39,7 +44,7 @@ const watch = () => {
             baseDir: './build'
         }
     });
-    gulp.watch('./src/styles/**/*.css', styles)
+    gulp.watch('./src/styles/**/*.scss', styles)
     gulp.watch('./src/js/**/*.js', scripts)
     gulp.watch('./src/**/*.html', html)
 }
