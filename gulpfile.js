@@ -9,8 +9,8 @@ const rigger = require('gulp-rigger');
 const htmlMin = require('gulp-htmlmin');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
-const imagemin = require('gulp-imagemin');
 const imageResize = require('gulp-image-resize');
+const rename = require('gulp-rename');
 
 gulp.task('clean', () => {
     return del(['build/*'])
@@ -62,7 +62,7 @@ gulp.task('html', () => {
 });
 
 gulp.task('img-compress', () => {
-   return gulp.src('./src/img/**.{png,jpg}')
+   return gulp.src('./src/img/**/*.{png,jpg}')
        .pipe(imageResize({
            width : '50%',
            height : '50%',
@@ -72,11 +72,17 @@ gulp.task('img-compress', () => {
        .pipe(gulp.dest('./build/img/'))
 });
 
+gulp.task('img', () => {
+    return gulp.src('./src/img/**/*.*')
+        .pipe(rename({suffix: '@2x'}))
+        .pipe(gulp.dest('./build/img'))
+} );
+
 gulp.task('fonts', () => {
-    return gulp.src('src/fonts/**')
+    return gulp.src('src/fonts/**/*.*')
         .pipe(gulp.dest('build/fonts/'));
 });
 
-gulp.task('build', gulp.series('clean', gulp.parallel('html', 'styles', 'scripts', 'img-compress', 'fonts')));
+gulp.task('build', gulp.series('clean', gulp.parallel('html', 'styles', 'scripts', gulp.series('img-compress', 'img') , 'fonts')));
 
 gulp.task('default', gulp.series('build', 'watch'));
