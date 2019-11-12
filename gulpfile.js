@@ -9,8 +9,13 @@ const rigger = require('gulp-rigger');
 const htmlMin = require('gulp-htmlmin');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
+const imagemin = require('gulp-imagemin');
 
-const styles = () => {
+gulp.task('clean', () => {
+    return del(['build/*'])
+});
+
+gulp.task('styles', () => {
     return gulp.src('./src/styles/**/*.scss')
         .pipe(sourcemaps.init())
         .pipe(sass())
@@ -22,9 +27,9 @@ const styles = () => {
         }))
         .pipe(gulp.dest('./build/assets/css'))
         .pipe(browserSync.stream())
-}
+});
 
-const scripts = () => {
+gulp.task('scripts', () => {
     return gulp.src('./src/js/**/*.js')
         .pipe(concat('main.js'))
         .pipe(uglify({
@@ -32,41 +37,42 @@ const scripts = () => {
         }))
         .pipe(gulp.dest('./build/assets/js'))
         .pipe(browserSync.stream())
-}
+});
 
-const clean = () => {
-  return del(['build/*'])
-}
-
-const watch = () => {
+gulp.task('watch', () => {
     browserSync.init({
+        logPrefix: "misha.rud",
         server: {
             baseDir: './build'
         }
     });
-    gulp.watch('./src/styles/**/*.scss', styles)
-    gulp.watch('./src/js/**/*.js', scripts)
-    gulp.watch('./src/**/*.html', html)
-}
+    gulp.watch('./src/styles/**/*.scss', gulp.series('styles'))
+    gulp.watch('./src/js/**/*.js', gulp.series('scripts'))
+    gulp.watch('./src/**/*.html', gulp.series('html'))
+    gulp.watch('./src/img/**', gulp.series('img-compress'))
+});
 
-const html = () => {
+gulp.task('html', () => {
     return gulp.src('./src/*.html')
         .pipe(rigger())
         .pipe(htmlMin({ collapseWhitespace: true }))
         .pipe(gulp.dest('./build/'))
         .pipe(browserSync.stream())
-}
+});
 
-gulp.task('clean', clean);
+gulp.task('img-compress', () => {
+   return gulp.src('./src/img/**')
+       .pipe(imagemin({
+           progressive: true
+       }))
+       .pipe(gulp.dest('./build/img/'))
+});
 
-gulp.task('styles', styles);
+gulp.task('fonts', () => {
+    return gulp.src('src/fonts/**')
+        .pipe(gulp.dest('build/fonts/'));
+});
 
-gulp.task('scripts', scripts);
-
-gulp.task('watch', watch);
-
-gulp.task('html', html);
-
-gulp.task('build', gulp.series(clean, gulp.parallel(html, styles, scripts)));
+gulp.task('build', gulp.series('clean', gulp.parallel('html', 'styles', 'scripts', 'img-compress', 'fonts')));
 
 gulp.task('default', gulp.series('build', 'watch'));
