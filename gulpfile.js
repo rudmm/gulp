@@ -50,7 +50,7 @@ gulp.task('watch', () => {
     gulp.watch('./src/styles/**/*.scss', gulp.series('styles'))
     gulp.watch('./src/js/**/*.js', gulp.series('scripts'))
     gulp.watch('./src/**/*.html', gulp.series('html'))
-    gulp.watch('./src/img/**', gulp.series('img-compress'))
+    gulp.watch('./src/img/**', gulp.series('img-compress', 'img', 'img-svg'))
 });
 
 gulp.task('html', () => {
@@ -66,14 +66,19 @@ gulp.task('img-compress', () => {
        .pipe(imageResize({
            width : '50%',
            height : '50%',
-           crop : true,
+           crop : false,
            upscale : false
        }))
        .pipe(gulp.dest('./build/img/'))
 });
 
+gulp.task('img-svg', () => {
+    return gulp.src('./src/img/**/*.svg')
+        .pipe(gulp.dest('./build/img'))
+});
+
 gulp.task('img', () => {
-    return gulp.src('./src/img/**/*.*')
+    return gulp.src('./src/img/**/*.{png,jpg}')
         .pipe(rename({suffix: '@2x'}))
         .pipe(gulp.dest('./build/img'))
 } );
@@ -83,6 +88,6 @@ gulp.task('fonts', () => {
         .pipe(gulp.dest('build/fonts/'));
 });
 
-gulp.task('build', gulp.series('clean', gulp.parallel('html', 'styles', 'scripts', gulp.series('img-compress', 'img') , 'fonts')));
+gulp.task('build', gulp.series('clean', gulp.parallel('html', 'styles', 'scripts', gulp.series('img-compress', 'img', 'img-svg') , 'fonts')));
 
 gulp.task('default', gulp.series('build', 'watch'));
