@@ -62,30 +62,34 @@ gulp.task('html', () => {
 });
 
 gulp.task('img-compress', () => {
-   return gulp.src('./src/img/**/*.{png,jpg}')
-       .pipe(imageResize({
-           width : '50%',
-           height : '50%',
-           crop : false,
-           upscale : false
-       }))
-       .pipe(gulp.dest('./build/img/'))
+    return gulp.src('./src/img/**/*.{png,jpg}')
+        .pipe(imageResize({
+            width : '50%',
+            height : '50%',
+            crop : false,
+            upscale : false
+        }))
+        .pipe(gulp.dest('./build/img/'))
+        .pipe(browserSync.stream())
 });
 
 gulp.task('img-svg', () => {
     return gulp.src('./src/img/**/*.svg')
         .pipe(gulp.dest('./build/img'))
+        .pipe(browserSync.stream())
 });
 
 gulp.task('img', () => {
     return gulp.src('./src/img/**/*.{png,jpg}')
         .pipe(rename({suffix: '@2x'}))
         .pipe(gulp.dest('./build/img'))
+        .pipe(browserSync.stream())
 } );
 
 gulp.task('fonts', () => {
     return gulp.src('src/fonts/**/*.*')
-        .pipe(gulp.dest('build/fonts/'));
+        .pipe(gulp.dest('build/fonts/'))
+        .pipe(browserSync.stream())
 });
 
 gulp.task('build', gulp.series('clean', gulp.parallel('html', 'styles', 'scripts', gulp.series('img-compress', 'img', 'img-svg') , 'fonts')));
